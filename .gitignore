@@ -1,0 +1,14 @@
+# Ignore datasets
+data/
+*.zip
+
+# Ignore virtualenvs
+venv/
+.env/
+
+# Ignore system files
+.DS_Store
+__pycache__/
+
+# Ignore other large files
+*.tflite
