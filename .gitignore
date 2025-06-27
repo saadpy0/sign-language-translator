@@ -3,14 +3,7 @@ data/
 *.zip/
 
 # Ignore heavy raw video data
-WLASL/raw_videos/
-WLASL/*.zip
-WLASL/*.swf
-WLASL/*.mp4
-
-# Ignore the entire WLASL repo unless needed files are copied manually
-WLASL/.git/
-WLASL/.gitmodules
+WLASL/
 
 # Ignore Python cache and venv
 __pycache__/
