@@ -21,7 +21,9 @@ while True:
 
     # Define region of interest (ROI)
     roi = frame[50:350, 50:350]
-    roi_resized = cv2.resize(roi, (64, 64))
+    roi_gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+    roi_rgb = cv2.cvtColor(roi_gray, cv2.COLOR_GRAY2RGB)
+    roi_resized = cv2.resize(roi_rgb, (64, 64))
     roi_normalized = roi_resized.astype("float32") / 255.0
     roi_input = np.expand_dims(roi_normalized, axis=0)
 

@@ -1,6 +1,23 @@
 # Ignore datasets
 data/
-*.zip
+*.zip/
+
+# Ignore heavy raw video data
+WLASL/raw_videos/
+WLASL/*.zip
+WLASL/*.swf
+WLASL/*.mp4
+
+# Ignore the entire WLASL repo unless needed files are copied manually
+WLASL/.git/
+WLASL/.gitmodules
+
+# Ignore Python cache and venv
+__pycache__/
+*.pyc
+
+
+
 
 # Ignore virtualenvs
 venv/
@@ -11,4 +28,4 @@ venv/
 __pycache__/
 
 # Ignore other large files
-*.tflite
+*.tfliteWLASL/
