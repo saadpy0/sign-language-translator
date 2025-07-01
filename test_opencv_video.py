@@ -1,25 +1,9 @@
-from src.data_loader import load_asl_dataset
-import matplotlib.pyplot as plt
-import string
 import cv2
 import os
-
-label_map = dict(enumerate(string.ascii_uppercase))
-
-
-train_ds, val_ds = load_asl_dataset("data/raw/archive/asl_alphabet_train/asl_alphabet_train", img_size=(64, 64), batch_size=16)
-
-for images, labels in train_ds.take(1):
-    plt.figure(figsize=(10, 5))
-    for i in range(8):
-        ax = plt.subplot(2, 4, i + 1)
-        plt.imshow(images[i].numpy())
-        plt.title(f"Label: {labels[i].numpy()}")
-        plt.axis("off")
-    plt.tight_layout()
-    plt.show()
+import numpy as np
 
 VIDEO_PATH = '/Users/saad/Documents/slcnn/WLASL/start_kit/raw_videos/17712.mp4'
+NPY_PATH = '/Users/saad/Documents/slcnn/WLASL/start_kit/frame_data/07068.npy'
 
 if not os.path.exists(VIDEO_PATH):
     print('Video file does not exist.')
@@ -44,3 +28,12 @@ if frames:
 else:
     print('No frames extracted.')
 
+# Test loading the .npy file
+if os.path.exists(NPY_PATH):
+    data = np.load(NPY_PATH, allow_pickle=True).item()
+    print(f"Loaded {NPY_PATH}")
+    print(f"Keys: {list(data.keys())}")
+    print(f"Frames shape: {data['frames'].shape}")
+    print(f"Label: {data['label']}")
+else:
+    print(f"{NPY_PATH} does not exist.") 
