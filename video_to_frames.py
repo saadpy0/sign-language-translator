@@ -54,9 +54,7 @@ def process_video(args):
         return (vid_id, f'error:{e}')
 
 if __name__ == "__main__":
-    # Limit to first 10 videos for testing
-    test_df = df.head(10)
-    tasks = [(row['filename'], row['gloss'], label_map[row['gloss']]) for _, row in test_df.iterrows()]
+    tasks = [(row['filename'], row['gloss'], label_map[row['gloss']]) for _, row in df.iterrows()]
     skipped = []
     with ProcessPoolExecutor(max_workers=N_WORKERS) as executor:
         futures = {executor.submit(process_video, task): task[0] for task in tasks}
