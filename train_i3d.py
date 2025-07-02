@@ -8,7 +8,7 @@ FRAME_DATA_DIR = '/content/drive/My Drive/asl_project/WLASL/start_kit/frame_data
 BATCH_SIZE = 16  # 3D CNNs are memory intensive
 EPOCHS = 50
 MODEL_SAVE_PATH = 'models/lstm/wlasl_i3d_best.keras'
-PRETRAINED_WEIGHTS = 'models/rgb_inception_i3d_kinetics_only_tf_dim_ordering_tf_kernels_no_top.h5'
+PRETRAINED_WEIGHTS = '/content/drive/My Drive/asl_project/models/rgb_inception_i3d_kinetics_only_tf_dim_ordering_tf_kernels_no_top.h5'
 NUM_FRAMES = 16  # Adjust if your .npy files have a different number of frames
 IMG_SIZE = (224, 224)
 
