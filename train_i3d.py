@@ -4,7 +4,7 @@ from src.data_loader import load_wlasl_sequence_dataset
 from src.i3d_model import build_i3d_model
 
 # Config
-FRAME_DATA_DIR = 'WLASL/start_kit/frame_data'
+FRAME_DATA_DIR = '/content/drive/My Drive/asl_project/data'
 BATCH_SIZE = 16  # 3D CNNs are memory intensive
 EPOCHS = 50
 MODEL_SAVE_PATH = 'models/lstm/wlasl_i3d_best.keras'
