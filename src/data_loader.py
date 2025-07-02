@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import os
 from glob import glob
+import cv2
 
 def load_asl_dataset(data_dir, img_size=(64, 64), batch_size=32, validation_split=0.2):
     # Load raw datasets
@@ -36,7 +37,7 @@ def load_asl_dataset(data_dir, img_size=(64, 64), batch_size=32, validation_spli
     return train_ds, val_ds
 
 
-def load_wlasl_sequence_dataset(frame_data_dir, batch_size=32, validation_split=0.2, seed=123):
+def load_wlasl_sequence_dataset(frame_data_dir, batch_size=32, validation_split=0.2, seed=123, img_size=(224, 224)):
     """
     Loads .npy frame sequence data for temporal modeling.
     Returns train and validation tf.data.Dataset objects.
@@ -52,7 +53,10 @@ def load_wlasl_sequence_dataset(frame_data_dir, batch_size=32, validation_split=
     def load_npy(path):
         path = path.numpy().decode('utf-8')
         data = np.load(path, allow_pickle=True).item()
-        frames = data['frames'].astype(np.float32) / 255.0  # normalize
+        frames = data['frames'].astype(np.float32)
+        # Resize to img_size and normalize to [-1, 1]
+        frames = np.stack([cv2.resize(f, img_size) for f in frames])
+        frames = (frames / 127.5) - 1.0
         label = np.int32(data['label'])
         return frames, label
 
@@ -61,28 +65,13 @@ def load_wlasl_sequence_dataset(frame_data_dir, batch_size=32, validation_split=
         ds = ds.shuffle(buffer_size=len(file_list), seed=seed)
         def _load_and_set_shape(x):
             frames, label = tf.py_function(load_npy, [x], [tf.float32, tf.int32])
-            frames.set_shape((16, 64, 64, 3))
+            frames.set_shape((16, img_size[0], img_size[1], 3))
             label.set_shape(())
             return frames, label
         ds = ds.map(_load_and_set_shape, num_parallel_calls=tf.data.AUTOTUNE)
         ds = ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
         return ds
 
-    def augment_frames(frames, label):
-        def augment(frame):
-            frame = tf.squeeze(frame)  # ensure shape (64, 64, 3)
-            frame = tf.image.random_flip_left_right(frame)
-            frame = tf.image.random_brightness(frame, max_delta=0.2)
-            # Random zoom: resize to a random scale then back to 64x64
-            scale = tf.random.uniform([], 0.9, 1.1)
-            new_size = tf.cast(64 * scale, tf.int32)
-            frame = tf.image.resize(frame, [new_size, new_size])
-            frame = tf.image.resize_with_crop_or_pad(frame, 64, 64)
-            return frame
-        frames = tf.map_fn(augment, frames)
-        return frames, label
-
     train_ds = make_dataset(train_files)
-    # train_ds = train_ds.map(augment_frames, num_parallel_calls=tf.data.AUTOTUNE)
     val_ds = make_dataset(val_files)
     return train_ds, val_ds
