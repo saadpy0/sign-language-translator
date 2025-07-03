@@ -37,14 +37,26 @@ def load_asl_dataset(data_dir, img_size=(64, 64), batch_size=32, validation_spli
     return train_ds, val_ds
 
 
-def load_wlasl_sequence_dataset(frame_data_dir, batch_size=32, validation_split=0.2, seed=123, img_size=(224, 224)):
+def load_wlasl_sequence_dataset(frame_data_dir, batch_size=32, validation_split=0.2, seed=123, img_size=(224, 224), allowed_labels=None):
     """
     Loads .npy frame sequence data for temporal modeling.
     Returns train and validation tf.data.Dataset objects.
+    If allowed_labels is provided, only samples with those labels are loaded.
     """
     npy_files = sorted(glob(os.path.join(frame_data_dir, '*.npy')))
     np.random.seed(seed)
     np.random.shuffle(npy_files)
+    
+    # Filter files by allowed_labels if provided
+    if allowed_labels is not None:
+        filtered_files = []
+        for path in npy_files:
+            data = np.load(path, allow_pickle=True).item()
+            label = int(data['label'])
+            if label in allowed_labels:
+                filtered_files.append(path)
+        npy_files = filtered_files
+
     n_total = len(npy_files)
     n_val = int(n_total * validation_split)
     val_files = npy_files[:n_val]
@@ -58,6 +70,17 @@ def load_wlasl_sequence_dataset(frame_data_dir, batch_size=32, validation_split=
         frames = np.stack([cv2.resize(f, img_size) for f in frames])
         frames = (frames / 127.5) - 1.0
         label = np.int32(data['label'])
+        # Debug: Print info for the first few files
+        if not hasattr(load_npy, 'counter'):
+            load_npy.counter = 0
+        if load_npy.counter < 5:
+            print(f"[DEBUG] File: {path}")
+            print(f"[DEBUG] Frames shape: {frames.shape}, dtype: {frames.dtype}")
+            print(f"[DEBUG] Label: {label}, type: {type(label)}")
+        load_npy.counter += 1
+        # Check label validity
+        if np.isnan(label) or label < 0 or label >= 825:
+            print(f"[ERROR] Invalid label {label} in file {path}")
         return frames, label
 
     def make_dataset(file_list):

@@ -11,7 +11,10 @@ MODEL_SAVE_PATH = '/content/drive/MyDrive/asl_project/models/lstm/wlasl_cnn_lstm
 NUM_FRAMES = 16
 IMG_SIZE = (224, 224)
 LSTM_UNITS = 128
-NUM_CLASSES = 825
+
+# Use only 2 classes for debugging
+ALLOWED_LABELS = [7, 100]
+NUM_CLASSES = 2
 
 # Ensure model save directory exists
 os.makedirs(os.path.dirname(MODEL_SAVE_PATH), exist_ok=True)
@@ -23,7 +26,8 @@ train_ds, val_ds = load_wlasl_sequence_dataset(
     batch_size=BATCH_SIZE,
     validation_split=0.2,
     seed=123,
-    img_size=IMG_SIZE
+    img_size=IMG_SIZE,
+    allowed_labels=ALLOWED_LABELS
 )
 
 # Debug: Print a batch of data and labels
@@ -36,6 +40,24 @@ for batch in train_ds.take(1):
     print("[DEBUG] Labels dtype:", labels.dtype)
     print("[DEBUG] Labels min/max:", labels.numpy().min(), labels.numpy().max())
     print("[DEBUG] Unique labels in batch:", set(labels.numpy()))
+    # Print model predictions before training
+    print("[DEBUG] Model predictions before training:")
+    # Build model here to get predictions before training
+    model = build_cnn_lstm_model(
+        input_shape=(NUM_FRAMES, IMG_SIZE[0], IMG_SIZE[1], 3),
+        num_classes=NUM_CLASSES,
+        lstm_units=LSTM_UNITS,
+        trainable_cnn=True  # Unfreeze CNN
+    )
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3),
+        loss='sparse_categorical_crossentropy',
+        metrics=['accuracy']
+    )
+    preds_before = model.predict(frames)
+    print(preds_before.argmax(axis=1))
+    print("[DEBUG] True labels:", labels.numpy())
+    break
 
 # Overfit test: Use a single batch
 OVERFIT_TEST = True
@@ -43,19 +65,9 @@ if OVERFIT_TEST:
     train_ds = train_ds.take(1)
     val_ds = val_ds.take(1)
 
-# Model
-print('Building CNN+LSTM model...')
-model = build_cnn_lstm_model(
-    input_shape=(NUM_FRAMES, IMG_SIZE[0], IMG_SIZE[1], 3),
-    num_classes=NUM_CLASSES,
-    lstm_units=LSTM_UNITS,
-    trainable_cnn=False
-)
-model.compile(
-    optimizer='adam',
-    loss='sparse_categorical_crossentropy',
-    metrics=['accuracy']
-)
+# Model (already built above for debug, so skip re-building)
+# model = build_cnn_lstm_model(...)
+# model.compile(...)
 model.summary()
 
 # Callbacks
