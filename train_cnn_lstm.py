@@ -30,7 +30,10 @@ train_ds, val_ds = load_wlasl_sequence_dataset(
 for batch in train_ds.take(1):
     frames, labels = batch
     print("[DEBUG] Frames shape:", frames.shape)
+    print("[DEBUG] Frames dtype:", frames.dtype)
+    print("[DEBUG] Frames min/max:", frames.numpy().min(), frames.numpy().max())
     print("[DEBUG] Labels:", labels.numpy())
+    print("[DEBUG] Labels dtype:", labels.dtype)
     print("[DEBUG] Labels min/max:", labels.numpy().min(), labels.numpy().max())
     print("[DEBUG] Unique labels in batch:", set(labels.numpy()))
 
