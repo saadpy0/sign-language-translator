@@ -1,29 +1,42 @@
 import tensorflow as tf
-from tensorflow.keras import layers, models, regularizers
+from tensorflow.keras import layers, models
+
 
 def build_cnn_lstm_model(
-    input_shape=(16, 64, 64, 3),  # (frames, height, width, channels)
+    input_shape=(16, 224, 224, 3),
     num_classes=825,
-    cnn_filters=32,  # restored
-    lstm_units=128,  # restored
-    dropout_rate=0.2,  # reduced
-    l2_reg=1e-6  # reduced
+    lstm_units=128,
+    trainable_cnn=False
 ):
-    l2 = regularizers.l2(l2_reg)
-    inputs = layers.Input(shape=input_shape)
-    # TimeDistributed CNN with L2 and Dropout
-    x = layers.TimeDistributed(layers.Conv2D(cnn_filters, (3, 3), activation='relu', padding='same', kernel_regularizer=l2))(inputs)
-    x = layers.TimeDistributed(layers.MaxPooling2D((2, 2)))(x)
-    x = layers.TimeDistributed(layers.Dropout(dropout_rate))(x)
-    x = layers.TimeDistributed(layers.Conv2D(cnn_filters * 2, (3, 3), activation='relu', padding='same', kernel_regularizer=l2))(x)
-    x = layers.TimeDistributed(layers.MaxPooling2D((2, 2)))(x)
-    x = layers.TimeDistributed(layers.Dropout(dropout_rate))(x)
-    x = layers.TimeDistributed(layers.Flatten())(x)
-    # LSTM for temporal modeling with Dropout and L2
-    x = layers.Bidirectional(layers.LSTM(lstm_units, kernel_regularizer=l2, recurrent_regularizer=l2, dropout=dropout_rate, return_sequences=False))(x)
-    # Classifier
-    outputs = layers.Dense(num_classes, activation='softmax', kernel_regularizer=l2)(x)
-    model = models.Model(inputs, outputs)
+    """
+    Builds a 2D CNN + LSTM model for video classification.
+    Args:
+        input_shape: (frames, height, width, channels)
+        num_classes: number of output classes
+        lstm_units: number of units in the LSTM layer
+        trainable_cnn: whether to fine-tune the CNN backbone
+    Returns:
+        Keras Model
+    """
+    frames, height, width, channels = input_shape
+    cnn_base = tf.keras.applications.MobileNetV2(
+        input_shape=(height, width, channels),
+        include_top=False,
+        weights='imagenet',
+        pooling='avg'
+    )
+    cnn_base.trainable = trainable_cnn
+
+    # Input: (batch, frames, height, width, channels)
+    video_input = layers.Input(shape=input_shape)
+    # TimeDistributed applies the CNN to each frame
+    x = layers.TimeDistributed(cnn_base)(video_input)
+    # x shape: (batch, frames, cnn_features)
+    x = layers.LSTM(lstm_units, return_sequences=False)(x)
+    x = layers.Dropout(0.5)(x)
+    output = layers.Dense(num_classes, activation='softmax')(x)
+
+    model = models.Model(inputs=video_input, outputs=output)
     return model
 
 # Example usage:
