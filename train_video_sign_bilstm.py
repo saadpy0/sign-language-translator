@@ -12,7 +12,7 @@ NUM_CLASSES = 825
 EPOCHS = 30
 LSTM_UNITS = 128
 DROPOUT_RATE = 0.5
-CNN_TRAINABLE = False  # Set True to fine-tune CNN
+CNN_TRAINABLE = True  # Unfreeze CNN for fine-tuning
 MODEL_SAVE_PATH = 'models/video_sign_bilstm_best.h5'
 
 # --- Data Loading ---
@@ -34,7 +34,7 @@ model = build_video_sign_bilstm_model(
 )
 
 model.compile(
-    optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4),
+    optimizer=tf.keras.optimizers.Adam(learning_rate=1e-5),  # Lower learning rate
     loss='sparse_categorical_crossentropy',
     metrics=['accuracy']
 )
