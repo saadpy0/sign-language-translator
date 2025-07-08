@@ -4,7 +4,7 @@ from src.data_loader import load_wlasl_sequence_dataset
 from src.video_sign_bilstm_model import build_video_sign_bilstm_model
 
 # --- Config ---
-FRAME_DATA_DIR = 'WLASL/start_kit/frame_data'
+FRAME_DATA_DIR = '/content/drive/MyDrive/asl_project/WLASL/start_kit/frame_data/'
 BATCH_SIZE = 8
 IMG_SIZE = (224, 224)
 FRAMES = 16
