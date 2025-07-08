@@ -37,26 +37,14 @@ def load_asl_dataset(data_dir, img_size=(64, 64), batch_size=32, validation_spli
     return train_ds, val_ds
 
 
-def load_wlasl_sequence_dataset(frame_data_dir, batch_size=32, validation_split=0.2, seed=123, img_size=(224, 224), allowed_labels=None):
+def load_wlasl_sequence_dataset(frame_data_dir, batch_size=32, validation_split=0.2, seed=123, img_size=(224, 224)):
     """
     Loads .npy frame sequence data for temporal modeling.
     Returns train and validation tf.data.Dataset objects.
-    If allowed_labels is provided, only samples with those labels are loaded.
     """
     npy_files = sorted(glob(os.path.join(frame_data_dir, '*.npy')))
     np.random.seed(seed)
     np.random.shuffle(npy_files)
-    
-    # Filter files by allowed_labels if provided
-    if allowed_labels is not None:
-        filtered_files = []
-        for path in npy_files:
-            data = np.load(path, allow_pickle=True).item()
-            label = int(data['label'])
-            if label in allowed_labels:
-                filtered_files.append(path)
-        npy_files = filtered_files
-
     n_total = len(npy_files)
     n_val = int(n_total * validation_split)
     val_files = npy_files[:n_val]
