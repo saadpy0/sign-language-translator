@@ -13,7 +13,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 
 # Add src directory to path
-sys.path.append('src')
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 from video_data_loader import WLASLVideoDataLoader
 from video_sign_model import VideoSignLanguageModel
@@ -81,8 +81,8 @@ def main():
     # Training configuration
     config = {
         'dataset': {
-            'frames_dir': 'WLASL/start_kit/frames',
-            'split_file': 'WLASL/start_kit/splits/WLASL100.json',
+            'frames_dir': '/content/drive/MyDrive/asl/WLASL/start_kit/frames',
+            'split_file': '/content/drive/MyDrive/asl/WLASL/start_kit/splits/WLASL100.json',
             'num_frames': 16,
             'frame_size': (224, 224),
             'batch_size': 16  # Reduced for memory efficiency
@@ -100,7 +100,7 @@ def main():
     }
     
     # Save configuration
-    save_training_config(config)
+    save_training_config(config, '/content/drive/MyDrive/asl/training_config.json')
     
     print("\n📊 Loading dataset...")
     try:
@@ -182,7 +182,7 @@ def main():
         
         # Get callbacks
         callbacks = model.get_callbacks(
-            model_save_path='models/video_sign_bilstm_best.h5',
+            model_save_path='/content/drive/MyDrive/asl/models/video_sign_bilstm_best.h5',
             patience=config['training']['patience'],
             min_delta=config['training']['min_delta']
         )
@@ -204,16 +204,16 @@ def main():
         print(f"   - Final validation accuracy: {history.history['val_accuracy'][-1]:.4f}")
         
         # Plot training history
-        plot_training_history(history)
+        plot_training_history(history, '/content/drive/MyDrive/asl/training_history.png')
         
         # Save final model
-        final_model_path = 'models/video_sign_bilstm_final.h5'
+        final_model_path = '/content/drive/MyDrive/asl/models/video_sign_bilstm_final.h5'
         model.save_model(final_model_path)
         
         print(f"\n🎉 Training completed successfully!")
-        print(f"   - Best model saved to: models/video_sign_bilstm_best.h5")
+        print(f"   - Best model saved to: /content/drive/MyDrive/asl/models/video_sign_bilstm_best.h5")
         print(f"   - Final model saved to: {final_model_path}")
-        print(f"   - Training history plot saved to: training_history.png")
+        print(f"   - Training history plot saved to: /content/drive/MyDrive/asl/training_history.png")
         
     except Exception as e:
         print(f"❌ Error during training: {e}")

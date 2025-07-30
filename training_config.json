@@ -1,0 +1,22 @@
+{
+  "dataset": {
+    "frames_dir": "/content/drive/MyDrive/asl/WLASL/start_kit/frames",
+    "split_file": "/content/drive/MyDrive/asl/WLASL/start_kit/splits/WLASL100.json",
+    "num_frames": 16,
+    "frame_size": [
+      224,
+      224
+    ],
+    "batch_size": 16
+  },
+  "model": {
+    "lstm_units": 128,
+    "dropout_rate": 0.5,
+    "learning_rate": 0.0001
+  },
+  "training": {
+    "epochs": 50,
+    "patience": 15,
+    "min_delta": 0.001
+  }
+}
